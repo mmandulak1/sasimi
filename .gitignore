@@ -1,0 +1,5 @@
+*.csv
+*.res
+datasets/
+boundshiftRes/
+resultsDir/
