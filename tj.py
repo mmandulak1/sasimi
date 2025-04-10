@@ -71,11 +71,11 @@ df = df.sample(samples).reset_index(drop=True)
 
 #MATCH ALGS: 0 = Hungarian, 1 = LD, 2 = Streaming, 3 = Greedy
 print("HUNGARIAN")
-df_hung = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=0,printSets=vsetOut)
-print("GREEDY")
-df_gd = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=3,printSets=0)
-print("LOCALLY-DOMINANT")
-df_ld = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=1,printSets=0)
+df_hung = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=2,matchAlg=0,printSets=vsetOut)
+#print("GREEDY")
+#df_gd = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=3,printSets=0)
+#print("LOCALLY-DOMINANT")
+#df_ld = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=1,printSets=0)
 print("PS METHOD")
 df_stream = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=2,printSets=0)
 
@@ -85,12 +85,12 @@ print("Non-Matching Instances: ",(countMatchInst[-1]/numVerified[0])*100)
 
 #print("Matching Instances: ",len(graphN[0]), " | Percent: ", (len(graphN[0])/numVerified[0])*100)
 
-calc_recall(df_hung,df_gd,"GD Matching")
-calc_precision(df_hung,df_gd,"GD Matching")
-calc_recall(df_hung,df_ld,"LD Matching")
-calc_precision(df_hung,df_ld,"LD Matching")
-calc_recall(df_hung,df_stream,"PS Matching")
-calc_precision(df_hung,df_stream,"PS Matching")
+#calc_recall(df_hung,df_gd,"GD Matching")
+#calc_precision(df_hung,df_gd,"GD Matching")
+#calc_recall(df_hung,df_ld,"LD Matching")
+#calc_precision(df_hung,df_ld,"LD Matching")
+#calc_recall(df_hung,df_stream,"PS Matching")
+#calc_precision(df_hung,df_stream,"PS Matching")
 
 
 

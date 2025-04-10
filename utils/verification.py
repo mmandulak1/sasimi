@@ -123,7 +123,67 @@ def verification(R_record, S_record, phi, pers_delta,alg):
 
 
     score = matching / (orRLen + orSLen - matching)
-    return score
+    return score 
+
+
+
+# Indexing = len(R) + currS 
+def verification_ps(R_record, S_record, phi, pers_delta):
+    # Start Element deduplication
+    orRLen = len(R_record)
+    orSLen = len(S_record)
+    add, r_inds, s_inds = deduplicate(R_record, S_record)
+    #print("DEDUP ADD VAL: ",add)
+    R_record = [r for no, r in enumerate(R_record) if no not in r_inds]
+    S_record = [s for no, s in enumerate(S_record) if no not in s_inds]
+    if (len(R_record)) == 0:
+        score = add / (orRLen + orSLen - add)
+        return score        
+    # End Element deduplication
+    '''
+    add = 0
+    '''
+    UB = orRLen
+    matchScore = add
+    mWeight = 0
+    eps = 0.01
+    n = len(R_record) + len(S_record)
+    matching = list(range(0,n))
+    S = []
+    dual = [0] * (len(R_record) + len(S_record))
+
+    for nor, r in enumerate(R_record):
+        max_NN = 0
+        for nos, s in enumerate(S_record):
+            score = phi(r, s)
+            max_NN = max((max_NN, score))
+            u = nor
+            v = len(R_record) + nos
+            w_e = score
+            e = (u,v,w_e)
+            #edge = (nor, len(R) + nos, score)
+            if w_e > (1 + eps)*(dual[u] + dual[v]):
+                w_p = w_e - (dual[u] + dual[v])
+                dual[u] = dual[u] + w_p/2
+                dual[v] = dual[v] + w_p/2
+                S.append(e)
+        UB -= 1 - max_NN
+        if pers_delta - UB > 0.0000001:
+            return UB / (orRLen + orSLen - UB)
+    while len(S) != 0:
+        e = S[-1]
+        u = e[0]
+        v = e[1]
+        S.pop()
+        if matching[u] == u and matching[v] == v:
+            matching[u] = v
+            matching[v] = u
+            mWeight += e[2]
+    #mWeight/=2
+    matchScore += mWeight
+    return matchScore/(orRLen + orSLen - matchScore)
+
+
 
 def verification_opt(R_record, S_record, phi, pers_delta, alg):
     
