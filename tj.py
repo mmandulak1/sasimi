@@ -43,12 +43,13 @@ def calc_precision(dforig, dfnew, text):
 
 
 if len(sys.argv) < 3:
-    print("python3 ", sys.argv[0], " [File] [#Sets] [Opt. - Delta]")
+    print("python3 ", sys.argv[0], " [File] [#Sets/'FULL'] [Opt. - Delta]")
     exit()
 
 
 file = sys.argv[1]
-samples = int(sys.argv[2])
+if sys.argv[2] != 'FULL':
+    samples = int(sys.argv[2])
 print(file.split('/')[-1])
 
 vsetOut = 0
@@ -67,7 +68,9 @@ df.columns = ['id', 'text']
 df.text = df.text.apply(lambda x: str(x).split(';'))
 df.text = df.text.apply(lambda x: list(set(x)))
 
-df = df.sample(samples).reset_index(drop=True)
+
+if sys.argv[2] != 'FULL':
+    df = df.sample(samples).reset_index(drop=True)
 
 #MATCH ALGS: 0 = Hungarian, 1 = LD, 2 = Streaming, 3 = Greedy
 print("HUNGARIAN")
