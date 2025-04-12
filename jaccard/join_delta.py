@@ -1,7 +1,7 @@
 from math import floor, ceil
 import pandas as pd
 from time import time
-from utils.verification import verification, verification_opt, jaccard, verification_ps
+from utils.verification import verification, verification_opt, jaccard, verification_ps, verification_gd, verification_ld
 from utils.utils import binary_search, binary_search_dupl, post_basic, post_positional
 from jaccard.join_utils import transform_collection, build_stats_for_record, build_index
 
@@ -209,16 +209,27 @@ def simjoin(collection1, collection2, delta, idx, lengths_list, jointFilter, pos
                 else:
                     score = verification_opt(S_rec, R_rec, jaccard, pers_delta, verification_alg)            
             else:
-                if matchAlg == 2:
-                    if RLen < SLen:
-                        score = verification_ps(R_rec, S_rec, jaccard, pers_delta)
-                    else:
-                        score = verification_ps(S_rec, R_rec, jaccard, pers_delta)
-                else:
-                    if RLen < SLen:
-                        score = verification(R_rec, S_rec, jaccard, pers_delta, matchAlg)
-                    else:
-                        score = verification(S_rec, R_rec, jaccard, pers_delta, matchAlg)
+                match matchAlg:
+                    case 4:
+                        if RLen < SLen:
+                            score = verification_ld(R_rec, S_rec, jaccard, pers_delta)
+                        else:
+                            score = verification_ld(S_rec, R_rec, jaccard, pers_delta)
+                    case 5:
+                        if RLen < SLen:
+                            score = verification_ps(R_rec, S_rec, jaccard, pers_delta)
+                        else:
+                            score = verification_ps(S_rec, R_rec, jaccard, pers_delta)
+                    case 6:
+                        if RLen < SLen:
+                            score = verification_gd(R_rec, S_rec, jaccard, pers_delta)
+                        else:
+                            score = verification_gd(S_rec, R_rec, jaccard, pers_delta)
+                    case _:
+                        if RLen < SLen:
+                            score = verification(R_rec, S_rec, jaccard, pers_delta, matchAlg)
+                        else:
+                            score = verification(S_rec, R_rec, jaccard, pers_delta, matchAlg)
             t2 = time()
             candver_time += t2-t1
 

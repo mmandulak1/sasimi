@@ -14,6 +14,8 @@ graphM = [[],[],[],[]]
 countMatchInst = [0,0,0,0,0,0,0,0,0]
 
 
+
+
 def neds(r, s):
     return 1-editdistance.eval(r, s) / max((len(r), len(s)))
 
@@ -61,6 +63,23 @@ def deduplicate(r, s):
 
     return olap, set(r_inds), set(s_inds)
 
+
+
+def build_csr(edgeList,n):
+    sortedEdges = sorted(edgeList)
+    indices = [0] * (n+1)
+    edges = []
+    weights = []
+    for idx, e in enumerate(sortedEdges):
+        u = e[0]
+        v = e[1]
+        w = e[-1]
+        indices[u+1] += 1
+        edges.append(v)
+        weights.append(w)
+    for i in range(1,n+1):
+        indices[i] = indices[i-1] + indices[i]
+    return indices, edges, weights
 
 #DO THE COMPONENT WISE TIMING
 def verification(R_record, S_record, phi, pers_delta,alg):
@@ -124,6 +143,131 @@ def verification(R_record, S_record, phi, pers_delta,alg):
 
     score = matching / (orRLen + orSLen - matching)
     return score 
+
+
+
+def verification_ld(R_record, S_record, phi, pers_delta):
+    
+    # Start Element deduplication
+    orRLen = len(R_record)
+    orSLen = len(S_record)
+    add, r_inds, s_inds = deduplicate(R_record, S_record)
+    #print("DEDUP ADD VAL: ",add)
+    R_record = [r for no, r in enumerate(R_record) if no not in r_inds]
+    S_record = [s for no, s in enumerate(S_record) if no not in s_inds]
+    if (len(R_record)) == 0:
+        score = add / (orRLen + orSLen - add)
+        return score        
+    # End Element deduplication
+    '''
+    add = 0
+    '''
+    n = len(R_record) + len(S_record)
+    UB = orRLen
+    edges = [[] for _ in range(n)]
+    for nor, r in enumerate(R_record):
+        max_NN = 0
+        for nos, s in enumerate(S_record):
+            score = phi(r, s)
+            max_NN = max((max_NN, score))
+            edges[nor].append((len(R_record) + nos, score))
+            edges[len(R_record) + nos].append((nor, score))
+            
+        UB -= 1 - max_NN
+        if pers_delta - UB > 0.0000001:
+            return UB / (orRLen + orSLen - UB)
+
+
+
+    matchScore = add
+    matching = list(range(0,n))
+    numUpdates = 1
+    totalWeight = 0
+    #SET POINTERS
+    while numUpdates != 0:
+        pointers = list(range(0,n))
+        pointerWeights = [0] * n
+        numUpdates = 0
+        for u in range(0,n):
+            if matching[u] != u:
+                continue
+
+            deg = len(edges[u])
+
+            bestN = u
+            bestW = float('-inf')
+            for v in range(0,deg):
+                cW = edges[u][v][-1]
+                if cW > bestW:
+                    bestN = edges[u][v][0]
+                    bestW = cW
+            pointers[u] = bestN
+            pointerWeights[u] = bestW
+        #MUTUAL CHECK
+        for u in range(0,n):
+            if pointers[u] == u or matching[u] != u:
+                continue
+            if u == pointers[pointers[u]]:
+                matching[u] = pointers[u]
+                matching[pointers[u]] = u
+                totalWeight += pointerWeights[u]
+                numUpdates+=2
+    #totalWeight /= 2
+    matchScore += totalWeight
+
+    score = matchScore / (orRLen + orSLen - matchScore)
+    return score 
+
+
+
+
+def verification_gd(R_record, S_record, phi, pers_delta):
+    
+    # Start Element deduplication
+    orRLen = len(R_record)
+    orSLen = len(S_record)
+    add, r_inds, s_inds = deduplicate(R_record, S_record)
+    #print("DEDUP ADD VAL: ",add)
+    R_record = [r for no, r in enumerate(R_record) if no not in r_inds]
+    S_record = [s for no, s in enumerate(S_record) if no not in s_inds]
+    if (len(R_record)) == 0:
+        score = add / (orRLen + orSLen - add)
+        return score        
+    # End Element deduplication
+    '''
+    add = 0
+    '''
+    
+    UB = orRLen
+    edges = []
+    for nor, r in enumerate(R_record):
+        max_NN = 0
+        for nos, s in enumerate(S_record):
+            score = phi(r, s)
+            max_NN = max((max_NN, score))
+            edges.append((nor, len(R_record) + nos, score))
+            
+        UB -= 1 - max_NN
+        if pers_delta - UB > 0.0000001:
+            return UB / (orRLen + orSLen - UB)
+
+    matchScore = add
+    matching = list(range(0,len(R_record) + len(S_record)))
+    se = sorted(edges, key=lambda x: x[-1],reverse=True)
+    totalWeight = 0
+    for e in se:
+        u = e[0]
+        v = e[1]
+        if matching[u] == u and matching[v] == v:
+            matching[u] = v
+            matching[v] = u 
+            totalWeight += e[-1]
+    matchScore += totalWeight
+
+
+    score = matchScore / (orRLen + orSLen - matchScore)
+    return score 
+
 
 
 

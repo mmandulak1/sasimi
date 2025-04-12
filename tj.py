@@ -72,15 +72,19 @@ df.text = df.text.apply(lambda x: list(set(x)))
 if sys.argv[2] != 'FULL':
     df = df.sample(samples).reset_index(drop=True)
 
-#MATCH ALGS: 0 = Hungarian, 1 = LD, 2 = Streaming, 3 = Greedy
+#MATCH ALGS: 0 = Hungarian, 1 = LD, 2 = PS, 3 = Greedy, 4 = LD_opt, 5 = PS_opt, 6 = GD_opt
 print("HUNGARIAN")
 df_hung = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=2,matchAlg=0,printSets=vsetOut)
 #print("GREEDY")
 #df_gd = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=3,printSets=0)
+#print("GREEDY_OPT")
+#df_gd = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=6,printSets=0)
 #print("LOCALLY-DOMINANT")
 #df_ld = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=1,printSets=0)
-print("PS METHOD")
-df_stream = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=2,printSets=0)
+#print("LOCALLY-DOMINANT_OPT")
+#df_ld = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=4,printSets=0)
+#print("PS METHOD")
+#df_stream = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=2,printSets=0)
 
 print("Average Graph Sizes: N:", average(graphN[0]), " M:", average(graphM[0]))
 print("Matching Instances Alg: ",countMatchInst[0], " | Percent: ", (countMatchInst[0]/numVerified[0])*100)
