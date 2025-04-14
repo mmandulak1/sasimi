@@ -37,6 +37,8 @@ for filename in os.listdir(directory):
                     numsets = int(line.rstrip().split('/')[-1].replace(',',""))
                 if "HUNGARIAN" in line:
                     method = 'HG'
+                elif "EV METHOD" in line:
+                    method = 'EV'
                 elif "LOCALLY-DOMINANT" in line:
                     method = 'LD'
                 elif "PS METHOD" in line:
@@ -49,16 +51,18 @@ for filename in os.listdir(directory):
                 if 'Survived' in line:
                     numsurv = int(line.rstrip().split(':')[-1].replace(',',""))
                     dataset.append([dataname, method, numsets, timings[0],timings[1],timings[2],timings[3], timings[4],numsurv])
+                    #dataset.append([dataname, method, numsets, timings[0],timings[1],timings[2],timings[3], timings[4],numsurv])
 
-                if 'Recall' in line:
-                    recalls.append(float(line.rstrip().split(' ')[-1]))
+                #if 'Recall' in line:
+                #    recalls.append(float(line.rstrip().split(' ')[-1]))
                 
-                if 'Precision' in line:
-                    precisions.append(float(line.rstrip().split(" ")[-1]))
+                #if 'Precision' in line:
+                #    precisions.append(float(line.rstrip().split(" ")[-1]))
                 
                 idx += 1
 
 recallIdx = 0
+'''
 for idx in range(len(dataset)):
     if dataset[idx][1] == 'LD' or dataset[idx][1] == 'PS' or dataset[idx][1] == 'GD':
         dataset[idx].append(recalls[recallIdx])
@@ -67,6 +71,6 @@ for idx in range(len(dataset)):
     else:
         dataset[idx].append(0.0)
         dataset[idx].append(0.0)
-
+'''
 for entry in dataset:
     print(",".join(map(str, entry))) 
