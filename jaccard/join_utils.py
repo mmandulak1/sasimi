@@ -9,6 +9,7 @@ def transform_collection(original_collection, tok_to_int=None):
     max_tokens_per_element = 0
     tokens_per_element = 0
     element_per_record = 0
+    max_elements_per_record = 0
 
     for nor, record in enumerate(original_collection):
         temp_record = []
@@ -26,8 +27,10 @@ def transform_collection(original_collection, tok_to_int=None):
             temp_record.append(tokens)
             tokens_per_element += len(tokens)
             max_tokens_per_element = max((len(tokens),max_tokens_per_element))
+            
 
         element_per_record += len(record)
+        max_elements_per_record = max((len(record),max_elements_per_record))
         temp_collection.append(temp_record)
 
     if tok_to_int is None:
@@ -46,7 +49,7 @@ def transform_collection(original_collection, tok_to_int=None):
     tokens_per_element /= element_per_record;
     element_per_record /= len(final_collection)
 
-    print("Finished reading file. Lines read: {}. Lines skipped due to errors: {}. Num of sets: {}. Elements per set: {}. Tokens per Element: {} Max TpE: {}".format(0, 0, len(final_collection), element_per_record, tokens_per_element,max_tokens_per_element))
+    print("Finished reading file. Lines read: {}. Lines skipped due to errors: {}. Num of sets: {}. Elements per set: {}. Tokens per Element: {} Max TpE: {} Max EpS: {}".format(0, 0, len(final_collection), element_per_record, tokens_per_element,max_tokens_per_element,max_elements_per_record))
     
     final_collection = sorted(final_collection, key=lambda x: len(x[1]))
     

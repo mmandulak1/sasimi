@@ -79,12 +79,14 @@ df = df.sample(samples).reset_index(drop=True)
 #MATCH ALGS: 0 = Hungarian, 1 = LD, 2 = Streaming
 print("HUNGARIAN")
 df_hung = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=0,printSets=vsetOut)
-print("GREEDY")
-df_gd = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=3,printSets=0)
-print("LOCALLY-DOMINANT")
-df_ld = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=1,printSets=0)
+#print("GREEDY")
+#df_gd = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=3,printSets=0)
+#print("LOCALLY-DOMINANT")
+#df_ld = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=1,printSets=0)
 print("PS METHOD")
-df_stream = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=2,printSets=0)
+df_stream = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=5,printSets=0)
+print("PS-2 METHOD")
+df_stream_2 = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=7,printSets=0)
 #print(df_hung,df_stream)
 '''
 for i in range(0,3):
@@ -95,9 +97,9 @@ for i in range(0,3):
     elif i == 2:
         print("PS Method")
 '''
-print("Average Graph Sizes: N:", average(graphN[0]), " M:", average(graphM[0]))
-print("Matching Instances Alg: ",countMatchInst[0], " | Percent: ", (countMatchInst[0]/numVerified[0])*100)
-print("Non-Matching Instances: ",(countMatchInst[-1]/numVerified[0])*100)
+#print("Average Graph Sizes: N:", average(graphN[0]), " M:", average(graphM[0]))
+#print("Matching Instances Alg: ",countMatchInst[0], " | Percent: ", (countMatchInst[0]/numVerified[0])*100)
+#print("Non-Matching Instances: ",(countMatchInst[-1]/numVerified[0])*100)
 
 #print("Matching Instances: ",len(graphN[0]), " | Percent: ", (len(graphN[0])/numVerified[0])*100)
 

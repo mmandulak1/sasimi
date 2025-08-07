@@ -3,3 +3,10 @@
 datasets/
 boundshiftRes/
 resultsDir/
+*.svg
+*.sh
+utils/
+massif.*
+jaccard/__pycache__/
+*.out
+runScripts/

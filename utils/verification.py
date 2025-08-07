@@ -1,6 +1,7 @@
 import networkx as nx
 import editdistance
 import heapq
+#from memory_profiler import profile
 
 '''
 def jaccard(r, s):
@@ -106,22 +107,17 @@ def verification(R_record, S_record, phi, pers_delta,alg):
         max_NN = 0
         for nos, s in enumerate(S_record):
             score = phi(r, s)
-            #print("JSCORE:",score)
             max_NN = max((max_NN, score))
             edges.append((f'r_{nor}', f's_{nos}', score))
             
         UB -= 1 - max_NN
         if pers_delta - UB > 0.0000001:
-            countMatchInst[alg+3] += 1
             return UB / (orRLen + orSLen - UB)
     #print(edges)
 
     G = nx.Graph()
     G.add_weighted_edges_from(edges)
 
-    graphN[alg].append(len(G.nodes))
-    graphM[alg].append(len(G.edges))
-    countMatchInst[alg] += 1
     #print(G)
     #print(nx.max_weight_matching(G))
     if alg == 0:
@@ -220,6 +216,79 @@ def verification_ld(R_record, S_record, phi, pers_delta):
 
 
 
+def verification_ld_shift(R_record, S_record, phi, pers_delta):
+    
+    # Start Element deduplication
+    orRLen = len(R_record)
+    orSLen = len(S_record)
+    add, r_inds, s_inds = deduplicate(R_record, S_record)
+    #print("DEDUP ADD VAL: ",add)
+    R_record = [r for no, r in enumerate(R_record) if no not in r_inds]
+    S_record = [s for no, s in enumerate(S_record) if no not in s_inds]
+    if (len(R_record)) == 0:
+        score = add / (orRLen + orSLen - add)
+        return score        
+    # End Element deduplication
+    '''
+    add = 0
+    '''
+    n = len(R_record) + len(S_record)
+    UB = orRLen
+    edges = [[] for _ in range(n)]
+    for nor, r in enumerate(R_record):
+        max_NN = 0
+        for nos, s in enumerate(S_record):
+            score = phi(r, s)
+            max_NN = max((max_NN, score))
+            edges[nor].append((len(R_record) + nos, score))
+            edges[len(R_record) + nos].append((nor, score))
+            
+        UB -= 1 - max_NN
+        if pers_delta - UB > 0.0000001:
+            return UB / (orRLen + orSLen - UB)
+
+
+
+    matchScore = add
+    matching = list(range(0,n))
+    numUpdates = 1
+    totalWeight = 0
+    #SET POINTERS
+    while numUpdates != 0:
+        pointers = list(range(0,n))
+        pointerWeights = [0] * n
+        numUpdates = 0
+        for u in range(0,n):
+            if matching[u] != u:
+                continue
+
+            deg = len(edges[u])
+
+            bestN = u
+            bestW = float('-inf')
+            for v in range(0,deg):
+                cW = edges[u][v][-1]
+                if cW > bestW:
+                    bestN = edges[u][v][0]
+                    bestW = cW
+            pointers[u] = bestN
+            pointerWeights[u] = bestW
+        #MUTUAL CHECK
+        for u in range(0,n):
+            if pointers[u] == u or matching[u] != u:
+                continue
+            if u == pointers[pointers[u]]:
+                matching[u] = pointers[u]
+                matching[pointers[u]] = u
+                totalWeight += pointerWeights[u]
+                numUpdates+=2
+    #totalWeight /= 2
+    matchScore += (totalWeight * 2)
+
+    score = matchScore / (orRLen + orSLen - matchScore)
+    return score 
+
+
 
 def verification_gd(R_record, S_record, phi, pers_delta):
     
@@ -270,9 +339,228 @@ def verification_gd(R_record, S_record, phi, pers_delta):
 
 
 
+def verification_gd_shift(R_record, S_record, phi, pers_delta):
+    
+    # Start Element deduplication
+    orRLen = len(R_record)
+    orSLen = len(S_record)
+    add, r_inds, s_inds = deduplicate(R_record, S_record)
+    #print("DEDUP ADD VAL: ",add)
+    R_record = [r for no, r in enumerate(R_record) if no not in r_inds]
+    S_record = [s for no, s in enumerate(S_record) if no not in s_inds]
+    if (len(R_record)) == 0:
+        score = add / (orRLen + orSLen - add)
+        return score        
+    # End Element deduplication
+    '''
+    add = 0
+    '''
+    
+    UB = orRLen
+    edges = []
+    for nor, r in enumerate(R_record):
+        max_NN = 0
+        for nos, s in enumerate(S_record):
+            score = phi(r, s)
+            max_NN = max((max_NN, score))
+            edges.append((nor, len(R_record) + nos, score))
+            
+        UB -= 1 - max_NN
+        if pers_delta - UB > 0.0000001:
+            return UB / (orRLen + orSLen - UB)
+
+    matchScore = add
+    matching = list(range(0,len(R_record) + len(S_record)))
+    se = sorted(edges, key=lambda x: x[-1],reverse=True)
+    totalWeight = 0
+    for e in se:
+        u = e[0]
+        v = e[1]
+        if matching[u] == u and matching[v] == v:
+            matching[u] = v
+            matching[v] = u 
+            totalWeight += e[-1]
+    matchScore += (totalWeight * 2)
+
+
+    score = matchScore / (orRLen + orSLen - matchScore)
+    return score 
+
+
+
+def verification_ps_shift(R_record, S_record, phi, pers_delta):
+    # Start Element deduplication
+    orRLen = len(R_record)
+    orSLen = len(S_record)
+    add, r_inds, s_inds = deduplicate(R_record, S_record)
+    #print("DEDUP ADD VAL: ",add)
+    R_record = [r for no, r in enumerate(R_record) if no not in r_inds]
+    S_record = [s for no, s in enumerate(S_record) if no not in s_inds]
+    if (len(R_record)) == 0:
+        score = add / (orRLen + orSLen - add)
+        return score        
+    # End Element deduplication
+    '''
+    add = 0
+    '''
+    UB = orRLen
+    matchScore = add
+    mWeight = 0
+    eps = 0.01
+    n = len(R_record) + len(S_record)
+    matching = list(range(0,n))
+    S = []
+    dual = [0] * (len(R_record) + len(S_record))
+
+    for nor, r in enumerate(R_record):
+        max_NN = 0
+        for nos, s in enumerate(S_record):
+            score = phi(r, s)
+            max_NN = max((max_NN, score))
+            u = nor
+            v = len(R_record) + nos
+            w_e = score
+            e = (u,v,w_e)
+            #edge = (nor, len(R) + nos, score)
+            if w_e > (1 + eps)*(dual[u] + dual[v]):
+                w_p = w_e - (dual[u] + dual[v])
+                dual[u] = dual[u] + w_p
+                dual[v] = dual[v] + w_p
+                S.append(e)
+        UB -= 1 - max_NN
+        if pers_delta - UB > 0.0000001:
+            return UB / (orRLen + orSLen - UB)
+    while len(S) != 0:
+        e = S[-1]
+        u = e[0]
+        v = e[1]
+        S.pop()
+        if matching[u] == u and matching[v] == v:
+            matching[u] = v
+            matching[v] = u
+            mWeight += e[2]
+    #mWeight/=2
+    matchScore += sum(dual)
+    return matchScore/(orRLen + orSLen - matchScore)
+
+
 
 # Indexing = len(R) + currS 
 def verification_ps(R_record, S_record, phi, pers_delta):
+    # Start Element deduplication
+    orRLen = len(R_record)
+    orSLen = len(S_record)
+    add, r_inds, s_inds = deduplicate(R_record, S_record)
+    #print("DEDUP ADD VAL: ",add)
+    R_record = [r for no, r in enumerate(R_record) if no not in r_inds]
+    S_record = [s for no, s in enumerate(S_record) if no not in s_inds]
+    if (len(R_record)) == 0:
+        score = add / (orRLen + orSLen - add)
+        return score        
+    # End Element deduplication
+    '''
+    add = 0
+    '''
+    UB = orRLen
+    matchScore = add
+    mWeight = 0
+    eps = 0.01
+    n = len(R_record) + len(S_record)
+    matching = list(range(0,n))
+    S = []
+    dual = [0] * (len(R_record) + len(S_record))
+
+    for nor, r in enumerate(R_record):
+        max_NN = 0
+        for nos, s in enumerate(S_record):
+            score = phi(r, s)
+            max_NN = max((max_NN, score))
+            u = nor
+            v = len(R_record) + nos
+            w_e = score
+            e = (u,v,w_e)
+            #edge = (nor, len(R) + nos, score)
+            if w_e > (1 + eps)*(dual[u] + dual[v]):
+                w_p = w_e - (dual[u] + dual[v])
+                dual[u] = dual[u] + w_p
+                dual[v] = dual[v] + w_p
+                S.append(e)
+        UB -= 1 - max_NN
+        if pers_delta - UB > 0.0000001:
+            return UB / (orRLen + orSLen - UB)
+    while len(S) != 0:
+        e = S[-1]
+        u = e[0]
+        v = e[1]
+        S.pop()
+        if matching[u] == u and matching[v] == v:
+            matching[u] = v
+            matching[v] = u
+            mWeight += e[2]
+    #mWeight/=2
+    matchScore += mWeight
+    return matchScore/(orRLen + orSLen - matchScore)
+
+
+
+def verification_ps_2_shift(R_record, S_record, phi, pers_delta):
+    # Start Element deduplication
+    orRLen = len(R_record)
+    orSLen = len(S_record)
+    add, r_inds, s_inds = deduplicate(R_record, S_record)
+    #print("DEDUP ADD VAL: ",add)
+    R_record = [r for no, r in enumerate(R_record) if no not in r_inds]
+    S_record = [s for no, s in enumerate(S_record) if no not in s_inds]
+    if (len(R_record)) == 0:
+        score = add / (orRLen + orSLen - add)
+        return score        
+    # End Element deduplication
+    '''
+    add = 0
+    '''
+    UB = orRLen
+    matchScore = add
+    mWeight = 0
+    eps = 0.01
+    n = len(R_record) + len(S_record)
+    matching = list(range(0,n))
+    S = []
+    dual = [0] * (len(R_record) + len(S_record))
+
+    for nor, r in enumerate(R_record):
+        max_NN = 0
+        for nos, s in enumerate(S_record):
+            score = phi(r, s)
+            max_NN = max((max_NN, score))
+            u = nor
+            v = len(R_record) + nos
+            w_e = score
+            e = (u,v,w_e)
+            #edge = (nor, len(R) + nos, score)
+            if w_e > (1 + eps)*(dual[u] + dual[v]):
+                w_p = w_e - (dual[u] + dual[v])
+                dual[u] = dual[u] + w_p/2
+                dual[v] = dual[v] + w_p/2
+                S.append(e)
+        UB -= 1 - max_NN
+        if pers_delta - UB > 0.0000001:
+            return UB / (orRLen + orSLen - UB)
+    while len(S) != 0:
+        e = S[-1]
+        u = e[0]
+        v = e[1]
+        S.pop()
+        if matching[u] == u and matching[v] == v:
+            matching[u] = v
+            matching[v] = u
+            mWeight += e[2]
+    #mWeight/=2
+    #matchScore += mWeight
+    matchScore += sum(dual)
+    return matchScore/(orRLen + orSLen - matchScore)
+
+
+def verification_ps_2(R_record, S_record, phi, pers_delta):
     # Start Element deduplication
     orRLen = len(R_record)
     orSLen = len(S_record)
