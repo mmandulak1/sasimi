@@ -69,8 +69,8 @@ df.text = df.text.apply(lambda x: list(set(x)))
 samples = int(float(sys.argv[2]) * len(df.index))
 print("Samples: #:",samples, " %:",float(sys.argv[2])*100)
 if sys.argv[2] != 1.0:
-    #df = df.sample(samples).reset_index(drop=True)
-    df = df.sample(50000,random_state=1).reset_index(drop=True)
+    df = df.sample(samples).reset_index(drop=True)
+    #df = df.sample(50000,random_state=1).reset_index(drop=True)
 
 
 
@@ -85,21 +85,20 @@ print("GREEDY")
 df_gd = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=6,printSets=0)
 print("LOCALLY-DOMINANT")
 df_ld = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=4,printSets=0)
-
 print("PS METHOD")
 df_stream = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=5,printSets=0)
-print("PS2 METHOD")
-df_stream_2 = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=7,printSets=0)
+#print("PS2 METHOD")
+#df_stream_2 = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=7,printSets=0)
 
-print("PSSHIFT METHOD")
-df_stream_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=8,printSets=0)
-print("PS2SHIFT METHOD")
-df_stream_2_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=9,printSets=0)
+#print("PSSHIFT METHOD")
+#df_stream_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=8,printSets=0)
+#print("PS2SHIFT METHOD")
+#df_stream_2_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=9,printSets=0)
 
-print("GDSHIFT METHOD")
-df_gd_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=10,printSets=0)
-print("LDSHIFT METHOD")
-df_ld_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=11,printSets=0)
+#print("GDSHIFT METHOD")
+#df_gd_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=10,printSets=0)
+#print("LDSHIFT METHOD")
+#df_ld_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=True, jointFilter=True,verification_alg=-1,matchAlg=11,printSets=0)
 
 #print("Average Graph Sizes: N:", average(graphN[0]), " M:", average(graphM[0]))
 #print("Matching Instances Alg: ",countMatchInst[0], " | Percent: ", (countMatchInst[0]/numVerified[0])*100)
@@ -112,23 +111,25 @@ df_ld_shift = TokenJoin().tokenjoin_self(df, id='id', join='text', posFilter=Tru
 #calc_precision(df_hung,df_ld,"LD Matching")
 calc_recall(df_ev,df_stream,"PS Matching")
 calc_precision(df_ev,df_stream,"PS Matching")
-calc_recall(df_ev,df_stream_2,"PS2 Matching")
-calc_precision(df_ev,df_stream_2,"PS2 Matching")
+#calc_recall(df_ev,df_stream_2,"PS2 Matching")
+#calc_precision(df_ev,df_stream_2,"PS2 Matching")
 
+'''
 calc_recall(df_ev,df_stream_shift,"PSShift Matching")
 calc_precision(df_ev,df_stream_shift,"PSShift Matching")
 calc_recall(df_ev,df_stream_2_shift,"PS2Shift Matching")
 calc_precision(df_ev,df_stream_2_shift,"PS2Shift Matching")
+'''
 
 calc_recall(df_ev,df_ld,"LD Matching")
 calc_precision(df_ev,df_ld,"LD Matching")
-calc_recall(df_ev,df_ld_shift,"LDSHIFT Matching")
-calc_precision(df_ev,df_ld_shift,"LDSHIFT Matching")
+#calc_recall(df_ev,df_ld_shift,"LDSHIFT Matching")
+#calc_precision(df_ev,df_ld_shift,"LDSHIFT Matching")
 
 calc_recall(df_ev,df_gd,"GD Matching")
 calc_precision(df_ev,df_gd,"GD Matching")
-calc_recall(df_ev,df_gd_shift,"GDSHIFT Matching")
-calc_precision(df_ev,df_gd_shift,"GDSHIFT Matching")
+#calc_recall(df_ev,df_gd_shift,"GDSHIFT Matching")
+#calc_precision(df_ev,df_gd_shift,"GDSHIFT Matching")
 
 
 
