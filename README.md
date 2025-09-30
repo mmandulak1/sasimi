@@ -15,3 +15,7 @@ https://github.com/alexZeakis/TokenJoin_preprocessing
 ## Verification Matching ##
 
 `` utils/verification.py ``
+
+## Extended Paper Material ##
+Please see ` paper_extensions ` for chunked extensions of relevant sections of the short paper
+
